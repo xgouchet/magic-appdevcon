@@ -22,9 +22,11 @@ import com.example.android.architecture.blueprints.todoapp.data.Task;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
 import com.google.common.collect.Lists;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Implementation of the data source that adds a latency simulating network.
@@ -32,8 +34,12 @@ import java.util.Map;
 public class TasksRemoteDataSource implements TasksDataSource {
 
     private static final int SERVICE_LATENCY_IN_MILLIS = 5000;
+    private static final float NETWORK_ERROR_PROBABILITY = 50.0f / 100.0f;
+
     private final static Map<String, Task> TASKS_SERVICE_DATA;
     private static TasksRemoteDataSource INSTANCE;
+
+    private final Random random = new Random();
 
     static {
         TASKS_SERVICE_DATA = new LinkedHashMap<>(2);
@@ -58,12 +64,12 @@ public class TasksRemoteDataSource implements TasksDataSource {
     }
 
     public void getTasks(TasksDataSource.GetTasksCallback callback) {
-        // Simulate network
         try {
-            Thread.sleep(SERVICE_LATENCY_IN_MILLIS);
-        } catch (InterruptedException e) {
+            simulateNetwork();
+            callback.onTasksLoaded(Lists.newArrayList(TASKS_SERVICE_DATA.values()));
+        } catch (IOException e) {
+            callback.onDataNotAvailable();
         }
-        callback.onTasksLoaded(Lists.newArrayList(TASKS_SERVICE_DATA.values()));
     }
 
     /**
@@ -73,14 +79,26 @@ public class TasksRemoteDataSource implements TasksDataSource {
      */
     public void getTask(@NonNull String taskId, TasksDataSource.GetTaskCallback callback) {
         final Task task = TASKS_SERVICE_DATA.get(taskId);
+        try {
+            simulateNetwork();
+            callback.onTaskLoaded(task);
+        } catch (IOException e) {
+            callback.onDataNotAvailable();
+        }
+    }
 
+    private void simulateNetwork() throws IOException {
         // Simulate network by delaying the execution.
         try {
             Thread.sleep(SERVICE_LATENCY_IN_MILLIS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        callback.onTaskLoaded(task);
+
+        // Simulate network error
+        if (random.nextFloat() < NETWORK_ERROR_PROBABILITY) {
+            throw new IOException("Random error (sorry)");
+        }
     }
 
     @Override
