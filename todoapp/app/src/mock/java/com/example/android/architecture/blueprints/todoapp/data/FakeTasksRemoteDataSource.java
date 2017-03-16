@@ -53,7 +53,11 @@ public class FakeTasksRemoteDataSource implements TasksDataSource {
     @Override
     public void getTask(@NonNull String taskId, @NonNull GetTaskCallback callback) {
         Task task = TASKS_SERVICE_DATA.get(taskId);
-        callback.onTaskLoaded(task);
+        if (task != null) {
+            callback.onTaskLoaded(task);
+        } else {
+            callback.onDataNotAvailable();
+        }
     }
 
     @Override
@@ -70,7 +74,9 @@ public class FakeTasksRemoteDataSource implements TasksDataSource {
     @Override
     public void completeTask(@NonNull String taskId) {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
-        completeTask(oldTask);
+        if (oldTask != null) {
+            completeTask(oldTask);
+        }
     }
 
     @Override
@@ -82,7 +88,9 @@ public class FakeTasksRemoteDataSource implements TasksDataSource {
     @Override
     public void activateTask(@NonNull String taskId) {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
-        activateTask(oldTask);
+        if (oldTask != null) {
+            activateTask(oldTask);
+        }
     }
 
     @Override

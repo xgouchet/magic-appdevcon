@@ -115,7 +115,10 @@ public class TasksRemoteDataSource implements TasksDataSource {
     @Override
     public void completeTask(@NonNull String taskId) {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
-        completeTask(oldTask);
+        if (oldTask != null) {
+            completeTask(oldTask);
+            oldTask.releaseInstance();
+        }
     }
 
     @Override
@@ -127,7 +130,10 @@ public class TasksRemoteDataSource implements TasksDataSource {
     @Override
     public void activateTask(@NonNull String taskId) {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
-        activateTask(oldTask);
+        if (oldTask != null) {
+            activateTask(oldTask);
+            oldTask.releaseInstance();
+        }
     }
 
     public void clearCompletedTasks() {
