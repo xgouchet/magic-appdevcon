@@ -17,6 +17,7 @@
 package com.example.android.architecture.blueprints.todoapp.data.source.remote;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.android.architecture.blueprints.todoapp.data.Task;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
@@ -27,6 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+
+import appdevcon.annotations.Retry;
 
 /**
  * Implementation of the data source that adds a latency simulating network.
@@ -84,15 +87,18 @@ public class TasksRemoteDataSource implements TasksDataSource {
             callback.onTaskLoaded(task);
         } catch (IOException e) {
             callback.onDataNotAvailable();
+        } catch (OutOfMemoryError e) {
+            // TODO
         }
     }
 
+    @Retry(retryCount = 5, retryDelayMs = 1000, exception = IOException.class)
     private void simulateNetwork() throws IOException {
         // Simulate network by delaying the execution.
         try {
             Thread.sleep(SERVICE_LATENCY_IN_MILLIS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("Remote", "", e);
         }
 
         // Simulate network error
@@ -117,7 +123,6 @@ public class TasksRemoteDataSource implements TasksDataSource {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
         if (oldTask != null) {
             completeTask(oldTask);
-            oldTask.releaseInstance();
         }
     }
 
@@ -132,7 +137,6 @@ public class TasksRemoteDataSource implements TasksDataSource {
         Task oldTask = TASKS_SERVICE_DATA.get(taskId);
         if (oldTask != null) {
             activateTask(oldTask);
-            oldTask.releaseInstance();
         }
     }
 

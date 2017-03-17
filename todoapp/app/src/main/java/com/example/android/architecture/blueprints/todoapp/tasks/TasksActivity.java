@@ -35,6 +35,8 @@ import com.example.android.architecture.blueprints.todoapp.statistics.Statistics
 import com.example.android.architecture.blueprints.todoapp.util.ActivityUtils;
 import com.example.android.architecture.blueprints.todoapp.util.EspressoIdlingResource;
 
+import appdevcon.annotations.Monitor;
+
 public class TasksActivity extends AppCompatActivity {
 
     private static final String CURRENT_FILTERING_KEY = "CURRENT_FILTERING_KEY";
@@ -44,6 +46,7 @@ public class TasksActivity extends AppCompatActivity {
     private TasksPresenter mTasksPresenter;
 
     @Override
+    @Monitor
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tasks_act);
